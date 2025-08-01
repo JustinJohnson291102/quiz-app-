@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { STORAGE_KEYS } from '../utils/constants';
 
 type Theme = 'light' | 'dark' | 'system';
 
@@ -27,7 +28,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   const [isDark, setIsDark] = useState(false);
 
   useEffect(() => {
-    const stored = localStorage.getItem('theme') as Theme;
+    const stored = localStorage.getItem(STORAGE_KEYS.THEME) as Theme;
     if (stored) {
       setTheme(stored);
     }
@@ -48,7 +49,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     };
 
     updateTheme();
-    localStorage.setItem('theme', theme);
+    localStorage.setItem(STORAGE_KEYS.THEME, theme);
 
     if (theme === 'system') {
       const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');

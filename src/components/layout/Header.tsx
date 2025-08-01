@@ -8,16 +8,19 @@ import {
   SunIcon,
   MoonIcon,
   ComputerDesktopIcon,
-  BellIcon
+  BellIcon,
+  Bars3Icon
 } from '@heroicons/react/24/outline';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { clsx } from 'clsx';
+import MobileMenu from './MobileMenu';
 
 const Header: React.FC = () => {
   const { user, logout } = useAuth();
   const { theme, setTheme, isDark } = useTheme();
   const navigate = useNavigate();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
 
   const handleLogout = () => {
     logout();
@@ -31,7 +34,8 @@ const Header: React.FC = () => {
   ];
 
   return (
-    <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
+    <>
+      <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
@@ -80,6 +84,17 @@ const Header: React.FC = () => {
 
           {/* Right side */}
           <div className="flex items-center space-x-4">
+            {/* Mobile menu button */}
+            {user && (
+              <button
+                type="button"
+                className="md:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                onClick={() => setIsMobileMenuOpen(true)}
+              >
+                <Bars3Icon className="w-6 h-6 text-gray-600 dark:text-gray-400" />
+              </button>
+            )}
+
             {user ? (
               <>
                 {/* Theme Toggle */}
@@ -225,6 +240,8 @@ const Header: React.FC = () => {
         </div>
       </div>
     </header>
+      <MobileMenu isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
+    </>
   );
 };
 

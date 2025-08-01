@@ -6,20 +6,45 @@ import {
   TrophyIcon,
   ChartBarIcon,
   ClockIcon,
-  UserGroupIcon,
   FireIcon,
   StarIcon,
 } from '@heroicons/react/24/outline';
 import { useAuth } from '../../contexts/AuthContext';
+import StatsCard from './StatsCard';
+import { BookOpen, FileText, Trophy, Flame } from 'lucide-react';
 
 const DashboardHome: React.FC = () => {
   const { user } = useAuth();
 
   const quickStats = [
-    { name: 'Quizzes Completed', value: '24', icon: AcademicCapIcon, color: 'bg-blue-500' },
-    { name: 'Exams Taken', value: '8', icon: DocumentTextIcon, color: 'bg-green-500' },
-    { name: 'Average Score', value: '85%', icon: TrophyIcon, color: 'bg-yellow-500' },
-    { name: 'Study Streak', value: '7 days', icon: FireIcon, color: 'bg-red-500' },
+    { 
+      name: 'Quizzes Completed', 
+      value: '24', 
+      icon: BookOpen, 
+      color: 'bg-blue-500',
+      trend: { value: 12, isPositive: true }
+    },
+    { 
+      name: 'Exams Taken', 
+      value: '8', 
+      icon: FileText, 
+      color: 'bg-green-500',
+      trend: { value: 25, isPositive: true }
+    },
+    { 
+      name: 'Average Score', 
+      value: '85%', 
+      icon: Trophy, 
+      color: 'bg-yellow-500',
+      trend: { value: 5, isPositive: true }
+    },
+    { 
+      name: 'Study Streak', 
+      value: '7 days', 
+      icon: Flame, 
+      color: 'bg-red-500',
+      trend: { value: 2, isPositive: true }
+    },
   ];
 
   const recentActivity = [
@@ -90,17 +115,14 @@ const DashboardHome: React.FC = () => {
       {/* Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {quickStats.map((stat) => (
-          <div key={stat.name} className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-            <div className="flex items-center">
-              <div className={`p-3 rounded-lg ${stat.color}`}>
-                <stat.icon className="w-6 h-6 text-white" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{stat.name}</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">{stat.value}</p>
-              </div>
-            </div>
-          </div>
+          <StatsCard
+            key={stat.name}
+            name={stat.name}
+            value={stat.value}
+            icon={stat.icon}
+            color={stat.color}
+            trend={stat.trend}
+          />
         ))}
       </div>
 

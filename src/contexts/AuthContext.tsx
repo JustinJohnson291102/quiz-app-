@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User } from '../types';
+import { STORAGE_KEYS } from '../utils/constants';
+import toast from 'react-hot-toast';
 
 interface AuthContextType {
   user: User | null;
@@ -30,15 +32,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   useEffect(() => {
     // Check for existing session
-    const token = localStorage.getItem('token');
-    const userData = localStorage.getItem('user');
+    const token = localStorage.getItem(STORAGE_KEYS.TOKEN);
+    const userData = localStorage.getItem(STORAGE_KEYS.USER);
     
     if (token && userData) {
       try {
         setUser(JSON.parse(userData));
       } catch (error) {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
+        console.error('Error parsing user data:', error);
+        localStorage.removeItem(STORAGE_KEYS.TOKEN);
+        localStorage.removeItem(STORAGE_KEYS.USER);
       }
     }
     setIsLoading(false);
@@ -46,7 +49,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = async (email: string, password: string) => {
     try {
+      setIsLoading(true);
       // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
       const mockUser: User = {
         id: '1',
         email,
@@ -60,16 +66,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         },
       };
 
-      localStorage.setItem('token', 'mock-jwt-token');
-      localStorage.setItem('user', JSON.stringify(mockUser));
+      localStorage.setItem(STORAGE_KEYS.TOKEN, 'mock-jwt-token');
+      localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(mockUser));
       setUser(mockUser);
+      toast.success(`Welcome back, ${mockUser.name}!`);
     } catch (error) {
+      toast.error('Login failed. Please try again.');
       throw new Error('Invalid credentials');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const register = async (name: string, email: string, password: string, role = 'user') => {
     try {
+      setIsLoading(true);
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
       const mockUser: User = {
         id: Date.now().toString(),
         email,
@@ -83,26 +97,43 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         },
       };
 
-      localStorage.setItem('token', 'mock-jwt-token');
-      localStorage.setItem('user', JSON.stringify(mockUser));
+      localStorage.setItem(STORAGE_KEYS.TOKEN, 'mock-jwt-token');
+      localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(mockUser));
       setUser(mockUser);
+      toast.success(`Welcome to QuizExam, ${mockUser.name}!`);
     } catch (error) {
+      toast.error('Registration failed. Please try again.');
       throw new Error('Registration failed');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    localStorage.removeItem(STORAGE_KEYS.TOKEN);
+    localStorage.removeItem(STORAGE_KEYS.USER);
     setUser(null);
+    toast.success('Logged out successfully');
   };
 
   const updateProfile = async (updates: Partial<User>) => {
     if (!user) return;
     
+    try {
+      setIsLoading(true);
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
     const updatedUser = { ...user, ...updates };
-    localStorage.setItem('user', JSON.stringify(updatedUser));
+      localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(updatedUser));
     setUser(updatedUser);
+      toast.success('Profile updated successfully');
+    } catch (error) {
+      toast.error('Failed to update profile');
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

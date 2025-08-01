@@ -1,19 +1,17 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
 import {
   MagnifyingGlassIcon,
-  FunnelIcon,
-  ClockIcon,
   QuestionMarkCircleIcon,
-  StarIcon,
-  PlayIcon,
 } from '@heroicons/react/24/outline';
 import { Quiz } from '../../types';
+import QuizCard from './QuizCard';
+import LoadingSpinner from '../common/LoadingSpinner';
 
 const QuizList: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedDifficulty, setSelectedDifficulty] = useState('all');
+  const [isLoading, setIsLoading] = useState(false);
 
   // Mock data
   const quizzes: Quiz[] = [
@@ -92,17 +90,11 @@ const QuizList: React.FC = () => {
     return matchesSearch && matchesCategory && matchesDifficulty;
   });
 
-  const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty) {
-      case 'easy':
-        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
-      case 'medium':
-        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300';
-      case 'hard':
-        return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300';
-      default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300';
-    }
+  const handleSearch = (value: string) => {
+    setIsLoading(true);
+    setSearchTerm(value);
+    // Simulate API delay
+    setTimeout(() => setIsLoading(false), 300);
   };
 
   return (
@@ -117,7 +109,7 @@ const QuizList: React.FC = () => {
         </div>
         <div className="mt-4 sm:mt-0">
           <Link
-            to="/quiz/create"
+            to="/quizzes/create"
             className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-900"
           >
             Create Quiz
@@ -137,7 +129,7 @@ const QuizList: React.FC = () => {
               type="text"
               placeholder="Search quizzes..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => handleSearch(e.target.value)}
               className="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md leading-5 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             />
           </div>
@@ -175,81 +167,17 @@ const QuizList: React.FC = () => {
       </div>
 
       {/* Quiz Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredQuizzes.map((quiz) => (
-          <div
-            key={quiz.id}
-            className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow duration-200"
-          >
-            <div className="p-6">
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                    {quiz.title}
-                  </h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
-                    {quiz.description}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between mb-4">
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">
-                  {quiz.category}
-                </span>
-                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getDifficultyColor(quiz.difficulty)}`}>
-                  {quiz.difficulty.charAt(0).toUpperCase() + quiz.difficulty.slice(1)}
-                </span>
-              </div>
-
-              <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-4 space-x-4">
-                <div className="flex items-center">
-                  <ClockIcon className="w-4 h-4 mr-1" />
-                  {quiz.timeLimit ? `${quiz.timeLimit} min` : 'No limit'}
-                </div>
-                <div className="flex items-center">
-                  <QuestionMarkCircleIcon className="w-4 h-4 mr-1" />
-                  {quiz.questions.length || '10'} questions
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
-                  <StarIcon className="w-4 h-4 mr-1 text-yellow-400" />
-                  4.5 (120 reviews)
-                </div>
-                <Link
-                  to={`/quiz/${quiz.id}/take`}
-                  className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800 transition-colors"
-                >
-                  <PlayIcon className="w-4 h-4 mr-1" />
-                  Start Quiz
-                </Link>
-              </div>
-
-              {quiz.tags.length > 0 && (
-                <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
-                  <div className="flex flex-wrap gap-1">
-                    {quiz.tags.slice(0, 3).map((tag) => (
-                      <span
-                        key={tag}
-                        className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300"
-                      >
-                        #{tag}
-                      </span>
-                    ))}
-                    {quiz.tags.length > 3 && (
-                      <span className="text-xs text-gray-500 dark:text-gray-400">
-                        +{quiz.tags.length - 3} more
-                      </span>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
+      {isLoading ? (
+        <div className="flex justify-center py-12">
+          <LoadingSpinner size="lg" />
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredQuizzes.map((quiz) => (
+            <QuizCard key={quiz.id} quiz={quiz} />
+          ))}
+        </div>
+      )}
 
       {filteredQuizzes.length === 0 && (
         <div className="text-center py-12">
